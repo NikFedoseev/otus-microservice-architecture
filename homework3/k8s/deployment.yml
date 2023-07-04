@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: api
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      initContainers:
+        - name: migrations
+          image: nikfedoseev/microservice-architecture-homeworks:homework3
+          env:
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: dbuser
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: dbpass
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: dbhost
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: dbport
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: dbname
+          command: ["alembic", "--raiseerr", "upgrade", "heads"]
+      containers:
+      - name: homework3
+        image: nikfedoseev/microservice-architecture-homeworks:homework3
+        imagePullPolicy: Always
+        env:
+          - name: RELOAD
+            valueFrom:
+              secretKeyRef:
+                name: app-secret
+                key: reload
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: app-secret
+                key: dbuser
+          - name: DB_PASS
+            valueFrom:
+              secretKeyRef:
+                name: app-secret
+                key: dbpass
+          - name: DB_HOST
+            valueFrom:
+              secretKeyRef:
+                name: app-secret
+                key: dbhost
+          - name: DB_PORT
+            valueFrom:
+              secretKeyRef:
+                name: app-secret
+                key: dbport
+          - name: DB_NAME
+            valueFrom:
+              secretKeyRef:
+                name: app-secret
+                key: dbname
+          - name: DB_MAX_CONNECTIONS
+            valueFrom:
+              secretKeyRef:
+                name: app-secret
+                key: db_max_connections
+          - name: DC_POOL_RECYCLE
+            valueFrom:
+              secretKeyRef:
+                name: app-secret
+                key: dc_pool_recycle
+        ports:
+        - containerPort: 8000
+        livenessProbe:
+          httpGet:
+            path: api/healthcheck
+            port: 8000
+        readinessProbe:
+          httpGet:
+            path: api/healthcheck
+            port: 8000
