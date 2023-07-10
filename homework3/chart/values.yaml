@@ -1,0 +1,57 @@
+api:
+  replicas: 3
+  image: 
+    repository: nikfedoseev/microservice-architecture-homeworks
+    tag: homework3
+  imagePullPolicy: Always
+  port: 8000
+  containerEnv:
+    RELOAD: reload
+    DB_USER: dbuser
+    DB_PASS: dbpass
+    DB_HOST: dbhost
+    DB_PORT: dbport
+    DB_NAME: dbname
+    DB_MAX_CONNECTIONS: db_max_connections
+    DC_POOL_RECYCLE: dc_pool_recycle
+  migrationEnv:
+    DB_USER: dbuser
+    DB_PASS: dbpass
+    DB_HOST: dbhost
+    DB_PORT: dbport
+    DB_NAME: dbname
+
+
+secrets:
+  reload: RmFsc2U=
+  dbuser: ZGJ1c2Vy
+  dbpass: ZGJwYXNz
+  dbhost: cG9zdGdyZXMtc2VydmljZQ==
+  dbport: NTQzMg==
+  dbname: YXBwZGI=
+  db_max_connections: MTA=
+  dc_pool_recycle: NjA=
+
+
+service:
+  port: 9000
+
+
+ingress:
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /api/$1
+  className: nginx
+  hosts: 
+    - host: "arch.homework"
+      paths:
+        - path: /(.*)
+          pathType: Prefix
+        
+
+postgres:
+  env:
+    POSTGRES_USER: dbuser
+    POSTGRES_PASSWORD: dbpass
+    POSTGRES_DB: appdb
+  port: 5432
