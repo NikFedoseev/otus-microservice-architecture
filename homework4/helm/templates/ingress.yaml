@@ -1,0 +1,29 @@
+{{- $serviceName := printf "%s-%s-service" .Chart.Name .Release.Name  -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: "{{ .Chart.Name }}-{{ .Release.Name }}-ingress"
+  labels:
+    name: "{{ .Chart.Name }}-{{ .Release.Name }}-ingress"
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+    {{- range .Values.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+        {{- range .paths }}
+        - path: {{ .path }}
+          pathType: {{ .pathType }}
+          backend:
+            service:
+              name: {{ $serviceName }}
+              port:
+                number: {{ .port }}
+        {{- end }}
+    {{- end }}
+        

@@ -1,0 +1,53 @@
+{{- $secretName := printf "%s-secret" .Chart.Name -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ .Chart.Name }}-{{ .Release.Name }}-deployment"
+spec:
+  replicas: {{ .Values.api.replicas }}
+  selector:
+    matchLabels:
+      app: "{{ .Chart.Name }}-{{ .Release.Name }}"
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: "{{ .Chart.Name }}-{{ .Release.Name }}"
+    spec:
+      initContainers:
+      - name: "{{ .Chart.Name }}-{{ .Release.Name }}-migration"
+        image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
+        imagePullPolicy: {{ .Values.api.imagePullPolicy}}
+        env:
+          {{- range $key, $val := .Values.api.migrationEnv }}
+          - name: {{ $key }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ $secretName }}
+                key: {{ $val }}
+          {{- end }}
+        command: ["alembic", "--raiseerr", "upgrade", "heads"]
+      containers:
+      - name: "{{ .Chart.Name }}-{{ .Release.Name }}-api"
+        image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
+        imagePullPolicy: {{ .Values.api.imagePullPolicy}}
+        ports:
+        - name: http
+          containerPort: {{ .Values.api.port}}
+        livenessProbe:
+          httpGet:
+            path: api/healthcheck
+            port: http
+        readinessProbe:
+          httpGet:
+            path: api/healthcheck
+            port: http
+        env:
+          {{- range $key, $val := .Values.api.containerEnv }}
+          - name: {{ $key }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ $secretName }}
+                key: {{ $val }}
+          {{- end }}

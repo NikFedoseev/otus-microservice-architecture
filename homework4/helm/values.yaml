@@ -1,0 +1,112 @@
+api:
+  replicas: 3
+  image: 
+    repository: nikfedoseev/microservice-architecture-homeworks
+    tag: homework4
+  imagePullPolicy: Always
+  port: 8000
+  containerEnv:
+    RELOAD: reload
+    DB_USER: dbuser
+    DB_PASS: dbpass
+    DB_HOST: dbhost
+    DB_PORT: dbport
+    DB_NAME: dbname
+    DB_MAX_CONNECTIONS: db_max_connections
+    DC_POOL_RECYCLE: dc_pool_recycle
+  migrationEnv:
+    DB_USER: dbuser
+    DB_PASS: dbpass
+    DB_HOST: dbhost
+    DB_PORT: dbport
+    DB_NAME: dbname
+
+
+secrets:
+  reload: RmFsc2U=
+  dbuser: ZGJ1c2Vy
+  dbpass: ZGJwYXNz
+  dbhost: cG9zdGdyZXMtc2VydmljZQ==
+  dbport: NTQzMg==
+  dbname: YXBwZGI=
+  db_max_connections: MTA=
+  dc_pool_recycle: NjA=
+
+
+service:
+  ports:
+    - name: api
+      port: 9000
+      targetPort: 8000
+    - name: metrics
+      port: 9093
+      targetPort: 8000
+
+
+ingress:
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    # nginx.ingress.kubernetes.io/rewrite-target: /$1
+  className: nginx
+  hosts: 
+    - host: "arch.homework"
+      paths:
+        - path: /metrics
+          pathType: Prefix
+          port: 9093
+        - path: /
+          pathType: Prefix
+          port: 9000
+
+
+serviceMonitor:
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s
+        
+
+postgres:
+  env:
+    POSTGRES_USER: dbuser
+    POSTGRES_PASSWORD: dbpass
+    POSTGRES_DB: appdb
+  port: 5432
+
+
+kube-prometheus-stack:
+  prometheus:
+    prometheusSpec:
+      serviceMonitorSelectorNilUsesHelmValues: false
+      serviceMonitorSelector: {}
+  prometheus-node-exporter:
+    hostRootFsMount: {
+      enabled: false
+    }
+  grafana:
+    service:
+      type: NodePort
+
+
+ingress-nginx:
+  controller:
+    kind: DaemonSet
+    reportNodeInternalIp: true
+    hostPort:
+      enabled: true
+      ports:
+        http: 80
+        https: 443
+    service:
+      type: NodePort
+    metrics:
+      enabled: true
+      podAnnotations: {
+        prometheus.io/port: "10254",
+        prometheus.io/scrape: "true"
+      }
+      serviceMonitor:
+        enabled: true
+        additionalLabels: {
+          release: app
+        }

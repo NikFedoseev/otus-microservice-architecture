@@ -2,3 +2,5 @@ venv
 .python-version
 __pycache__
 notes.txt
+.DS_Store
+*.tgz
