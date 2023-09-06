@@ -1,0 +1,9 @@
+dependencies:
+- name: postgres
+  repository: file://./charts/postgres
+  version: 0.1.0
+- name: redis
+  repository: file://./charts/redis
+  version: 0.1.0
+digest: sha256:69e2190b4d0a575b2c816706219039914a43e3dc8cc03ac944a7c5ed84e0b952
+generated: "2023-09-02T15:49:51.7078+03:00"

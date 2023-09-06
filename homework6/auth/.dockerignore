@@ -1,0 +1,10 @@
+venv/
+k8s/
+helm/
+.env
+.dockerignore
+__pycache__
+Dockerfile
+docker-compose.yml
+readme/
+readme.md

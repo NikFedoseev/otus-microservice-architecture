@@ -1,0 +1,631 @@
+{
+	"info": {
+		"_postman_id": "141ba4a0-499c-4c01-9ebc-0401d9f7da98",
+		"name": "otus-api-gateway",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "register user 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json()",
+							"",
+							"pm.collectionVariables.set(\"user_1_id\", response.id);",
+							"pm.collectionVariables.set(\"user_1_profile_id\", response.profileId);",
+							"pm.collectionVariables.set(\"user_1_email\", response.email);",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"window = {};",
+							"",
+							"pm.sendRequest(\"https://cdnjs.cloudflare.com/ajax/libs/Faker/3.1.0/faker.min.js\", (error, response) => {",
+							"    if (error || response.code !== 200) {",
+							"        pm.expect.fail('Could not load external library');",
+							"    }",
+							"",
+							"    eval(response.text());",
+							"",
+							"",
+							"    window.faker.locale=\"en\";",
+							"",
+							"    const password =  window.faker.random.word()",
+							"",
+							"    const profileData = {",
+							"        \"firstName\": window.faker.name.firstName(),",
+							"        \"lastName\": window.faker.name.lastName(),",
+							"        \"middleName\": window.faker.name.firstName(),",
+							"        \"gender\": window.faker.helpers.shuffle(['male', 'female'])[0],",
+							"        \"address\": window.faker.address.city(),",
+							"        \"birthday\": window.faker.date.past().toISOString().split('T')[0]",
+							"    }",
+							"    ",
+							"    const body = {",
+							"        \"email\": window.faker.internet.email(),",
+							"        \"password\": password,",
+							"        ...profileData",
+							"    }",
+							"    pm.collectionVariables.set(\"user_1_password\", password);",
+							"    pm.collectionVariables.set(\"user_1_profile_data\", JSON.stringify(profileData))",
+							"    pm.environment.set(\"req_json\", JSON.stringify(body));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{req_json}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{baseUrl}}/ms-auth/api/auth/register",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ms-auth",
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get user 1 profile without auth",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {",
+							"    pm.response.to.have.status(403);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{baseUrl}}/ms-profile/api/profile/{{user_1_profile_id}}",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ms-profile",
+						"api",
+						"profile",
+						"{{user_1_profile_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "patch user 1 profile without auth",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {",
+							"    pm.response.to.have.status(403);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"firstName\": \"newName\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{baseUrl}}/ms-profile/api/profile/{{user_1_profile_id}}",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ms-profile",
+						"api",
+						"profile",
+						"{{user_1_profile_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login user 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"{{user_1_email}}\",\n    \"password\": \"{{user_1_password}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{baseUrl}}/ms-auth/api/auth/login",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ms-auth",
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "patch user 1 profile with auth",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"User 1 profile changed\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    const previousUser1ProfileData = JSON.parse(pm.collectionVariables.get(\"user_1_profile_data\"))",
+							"    pm.expect(jsonData.lastName).not.equal(previousUser1ProfileData.lastName);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"window = {};",
+							"",
+							"pm.sendRequest(\"https://cdnjs.cloudflare.com/ajax/libs/Faker/3.1.0/faker.min.js\", (error, response) => {",
+							"    if (error || response.code !== 200) {",
+							"        pm.expect.fail('Could not load external library');",
+							"    }",
+							"",
+							"    eval(response.text());",
+							"",
+							"",
+							"    window.faker.locale=\"en\";",
+							"",
+							"    const updateProfileData = {",
+							"        \"lastName\": window.faker.name.lastName(),",
+							"    }",
+							"    ",
+							"    pm.environment.set(\"req_json\", JSON.stringify(updateProfileData));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{req_json}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{baseUrl}}/ms-profile/api/profile/{{user_1_profile_id}}",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ms-profile",
+						"api",
+						"profile",
+						"{{user_1_profile_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "logout user 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{baseUrl}}/ms-auth/api/auth/logout",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ms-auth",
+						"api",
+						"auth",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register user 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json()",
+							"",
+							"pm.collectionVariables.set(\"user_2_id\", response.id);",
+							"pm.collectionVariables.set(\"user_2_profile_id\", response.profileId);",
+							"pm.collectionVariables.set(\"user_2_email\", response.email);",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"window = {};",
+							"",
+							"pm.sendRequest(\"https://cdnjs.cloudflare.com/ajax/libs/Faker/3.1.0/faker.min.js\", (error, response) => {",
+							"    if (error || response.code !== 200) {",
+							"        pm.expect.fail('Could not load external library');",
+							"    }",
+							"",
+							"    eval(response.text());",
+							"",
+							"",
+							"    window.faker.locale=\"en\";",
+							"",
+							"    const password =  window.faker.random.word()",
+							"",
+							"    const profileData = {",
+							"        \"firstName\": window.faker.name.firstName(),",
+							"        \"lastName\": window.faker.name.lastName(),",
+							"        \"middleName\": window.faker.name.firstName(),",
+							"        \"gender\": window.faker.helpers.shuffle(['male', 'female'])[0],",
+							"        \"address\": window.faker.address.city(),",
+							"        \"birthday\": window.faker.date.past().toISOString().split('T')[0]",
+							"    }",
+							"    ",
+							"    const body = {",
+							"        \"email\": window.faker.internet.email(),",
+							"        \"password\": password,",
+							"        ...profileData",
+							"    }",
+							"    pm.collectionVariables.set(\"user_2_password\", password);",
+							"    pm.collectionVariables.set(\"user_2_profile_data\", JSON.stringify(profileData))",
+							"    pm.environment.set(\"req_json\", JSON.stringify(body));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{req_json}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{baseUrl}}/ms-auth/api/auth/register",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ms-auth",
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login user 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"{{user_2_email}}\",\n    \"password\": \"{{user_2_password}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{baseUrl}}/ms-auth/api/auth/login",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ms-auth",
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get user 1 profile by user 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {",
+							"    pm.response.to.have.status(403);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{baseUrl}}/ms-profile/api/profile/{{user_1_profile_id}}",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ms-profile",
+						"api",
+						"profile",
+						"{{user_1_profile_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "patch user 1 profile by user 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {",
+							"    pm.response.to.have.status(403);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"window = {};",
+							"",
+							"pm.sendRequest(\"https://cdnjs.cloudflare.com/ajax/libs/Faker/3.1.0/faker.min.js\", (error, response) => {",
+							"    if (error || response.code !== 200) {",
+							"        pm.expect.fail('Could not load external library');",
+							"    }",
+							"",
+							"    eval(response.text());",
+							"",
+							"",
+							"    window.faker.locale=\"en\";",
+							"",
+							"    const updateProfileData = {",
+							"        \"lastName\": window.faker.name.lastName(),",
+							"    }",
+							"    ",
+							"    pm.environment.set(\"req_json\", JSON.stringify(updateProfileData));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{req_json}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{baseUrl}}/ms-profile/api/profile/{{user_1_profile_id}}",
+					"protocol": "http",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ms-profile",
+						"api",
+						"profile",
+						"{{user_1_profile_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "user_1_id",
+			"value": ""
+		},
+		{
+			"key": "user_1_profile_id",
+			"value": ""
+		},
+		{
+			"key": "user_1_password",
+			"value": ""
+		},
+		{
+			"key": "user_1_email",
+			"value": ""
+		},
+		{
+			"key": "user_1_profile_data",
+			"value": ""
+		},
+		{
+			"key": "user_2_password",
+			"value": ""
+		},
+		{
+			"key": "user_2_profile_data",
+			"value": ""
+		},
+		{
+			"key": "user_2_email",
+			"value": ""
+		},
+		{
+			"key": "user_2_id",
+			"value": ""
+		},
+		{
+			"key": "user_2_profile_id",
+			"value": ""
+		}
+	]
+}

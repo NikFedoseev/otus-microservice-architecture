@@ -1,0 +1,60 @@
+namespace: ms-auth
+
+secrets:
+  reload: False
+  dbuser: msauth-db-user
+  dbpass: msauth-db-pass
+  dbhost: postgres-service
+  dbport: 5432
+  dbname: msauth
+  db_max_connections: 10
+  dc_pool_recycle: 60
+  redis_host: redis-service
+  redis_port: 6379
+  profile_client_url: http://ms-profile-api-service.ms-profile.svc.cluster.local:9000
+  profile_client_token: profile-token
+
+api:
+  replicas: 1
+  image: 
+    repository: nikfedoseev/microservice-architecture-homeworks
+    tag: homework6-ms-auth
+  imagePullPolicy: Always
+  port: 8000
+  containerEnv:
+    RELOAD: reload
+    DB_USER: dbuser
+    DB_PASS: dbpass
+    DB_HOST: dbhost
+    DB_PORT: dbport
+    DB_NAME: dbname
+    DB_MAX_CONNECTIONS: db_max_connections
+    DC_POOL_RECYCLE: dc_pool_recycle
+    REDIS_HOST: redis_host
+    REDIS_PORT: redis_port
+    PROFILE_CLIENT_URL: profile_client_url
+    PROFILE_CLIENT_TOKEN: profile_client_token
+  migrationEnv:
+    DB_USER: dbuser
+    DB_PASS: dbpass
+    DB_HOST: dbhost
+    DB_PORT: dbport
+    DB_NAME: dbname
+
+service:
+  ports:
+    - name: api
+      port: 9000
+      targetPort: 8000
+
+postgres:
+  namespace: ms-auth
+  env:
+    POSTGRES_USER: msauth-db-user
+    POSTGRES_PASSWORD: msauth-db-pass
+    POSTGRES_DB: msauth
+  port: 5432
+
+redis:
+  namespace: ms-auth
+  port: 6379

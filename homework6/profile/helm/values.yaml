@@ -1,0 +1,48 @@
+namespace: ms-profile
+
+secrets:
+  reload: False
+  dbuser: msprofile-db-user
+  dbpass: msprofile-db-pass
+  dbhost: postgres-service
+  dbport: 5432
+  dbname: msprofile
+  db_max_connections: 10
+  dc_pool_recycle: 60
+
+api:
+  replicas: 1
+  image: 
+    repository: nikfedoseev/microservice-architecture-homeworks
+    tag: homework6-ms-profile
+  imagePullPolicy: Always
+  port: 8000
+  containerEnv:
+    RELOAD: reload
+    DB_USER: dbuser
+    DB_PASS: dbpass
+    DB_HOST: dbhost
+    DB_PORT: dbport
+    DB_NAME: dbname
+    DB_MAX_CONNECTIONS: db_max_connections
+    DC_POOL_RECYCLE: dc_pool_recycle
+  migrationEnv:
+    DB_USER: dbuser
+    DB_PASS: dbpass
+    DB_HOST: dbhost
+    DB_PORT: dbport
+    DB_NAME: dbname
+
+service:
+  ports:
+    - name: api
+      port: 9000
+      targetPort: 8000
+
+postgres:
+  namespace: ms-profile
+  env:
+    POSTGRES_USER: msprofile-db-user
+    POSTGRES_PASSWORD: msprofile-db-pass
+    POSTGRES_DB: msprofile
+  port: 5432
