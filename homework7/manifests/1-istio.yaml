@@ -1,0 +1,41 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: hw-7-app-gateway
+  namespace: ingress-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: hw-7-app-virtual-service
+  namespace: ingress-gateway
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - hw-7-app-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /ms-order/
+      rewrite:
+        uri: /
+      route:
+        - destination:
+            port:
+              number: 9000
+            host: ms-order-api-service.ms-order.svc.cluster.local
+      retries:
+        attempts: 3
+        retryOn: 5xx

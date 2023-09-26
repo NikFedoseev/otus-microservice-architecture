@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  postgres:
+    image: postgres:11
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=orders_user
+      - POSTGRES_PASSWORD=orders_pass
+      - POSTGRES_DB=orders
+  redis:
+    image: redis:6.2-alpine
+    ports:
+      - "6379:6379"
