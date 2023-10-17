@@ -1,0 +1,68 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: hw-8-app-gateway
+  namespace: ingress-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: hw-8-app-virtual-service
+  namespace: ingress-gateway
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - hw-8-app-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /ms-order/
+      rewrite:
+        uri: /
+      route:
+        - destination:
+            port:
+              number: 9000
+            host: ms-order-order-service.ms-order.svc.cluster.local
+    - match:
+        - uri:
+            prefix: /ms-payment/
+      rewrite:
+        uri: /
+      route:
+        - destination:
+            port:
+              number: 9000
+            host: ms-payment-payment-service.ms-payment.svc.cluster.local
+    - match:
+        - uri:
+            prefix: /ms-inventory/
+      rewrite:
+        uri: /
+      route:
+        - destination:
+            port:
+              number: 9000
+            host: ms-inventory-inventory-service.ms-inventory.svc.cluster.local
+    - match:
+        - uri:
+            prefix: /ms-delivery/
+      rewrite:
+        uri: /
+      route:
+        - destination:
+            port:
+              number: 9000
+            host: ms-delivery-delivery-service.ms-delivery.svc.cluster.local

@@ -1,0 +1,11 @@
+apiVersion: v2
+name: ms-payment
+description: payment microservice
+type: application
+version: 0.1.0
+appVersion: "1.16.0"
+
+dependencies:
+  - name: postgres
+    repository: file://./charts/postgres
+    version: 0.1.0

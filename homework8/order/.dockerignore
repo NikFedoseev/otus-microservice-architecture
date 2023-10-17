@@ -1,0 +1,11 @@
+venv/
+k8s/
+helm/
+.env
+.dockerignore
+__pycache__
+Dockerfile.api
+Dockerfile.consumer
+docker-compose.yml
+readme/
+readme.md

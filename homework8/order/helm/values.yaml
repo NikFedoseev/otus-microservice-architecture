@@ -1,0 +1,92 @@
+namespace: ms-order
+
+secrets:
+  reload: False
+  api_port: 8000
+  consumer_port: 8001
+  dbuser: msorder-db-user
+  dbpass: msorder-db-pass
+  dbhost: postgres-service
+  dbport: 5432
+  dbname: order
+  db_max_connections: 10
+  dc_pool_recycle: 60
+  rabbitmq_user: rmuser
+  rabbitmq_pass: rmpass
+  rabbitmq_host: rabbit-rabbitmq.rmq.svc.cluster.local
+  rabbitmq_port: 5672
+  order_created_queue: order.created
+  order_cancelled_queue: order.cancelled
+  order_state_changed_queue: order.state_changed
+  
+
+api:
+  replicas: 1
+  image: 
+    repository: nikfedoseev/microservice-architecture-homeworks
+    tag: homework8-ms-order-api
+  imagePullPolicy: Always
+  port: 8000
+  containerEnv:
+    RELOAD: reload
+    API_PORT: api_port
+    DB_USER: dbuser
+    DB_PASS: dbpass
+    DB_HOST: dbhost
+    DB_PORT: dbport
+    DB_NAME: dbname
+    DB_MAX_CONNECTIONS: db_max_connections
+    DC_POOL_RECYCLE: dc_pool_recycle
+    RABBITMQ_USER: rabbitmq_user
+    RABBITMQ_PASS: rabbitmq_pass
+    RABBITMQ_HOST: rabbitmq_host
+    RABBITMQ_PORT: rabbitmq_port
+    ORDER_CREATED_QUEUE: order_created_queue
+    ORDER_CANCELLED_QUEUE: order_cancelled_queue
+    ORDER_STATE_CHANGED_QUEUE: order_state_changed_queue
+  migrationEnv:
+    DB_USER: dbuser
+    DB_PASS: dbpass
+    DB_HOST: dbhost
+    DB_PORT: dbport
+    DB_NAME: dbname
+
+consumer:
+  replicas: 1
+  image: 
+    repository: nikfedoseev/microservice-architecture-homeworks
+    tag: homework8-ms-order-consumer
+  imagePullPolicy: Always
+  port: 8001
+  containerEnv:
+    RELOAD: reload
+    CONSUMER_PORT: consumer_port
+    DB_USER: dbuser
+    DB_PASS: dbpass
+    DB_HOST: dbhost
+    DB_PORT: dbport
+    DB_NAME: dbname
+    DB_MAX_CONNECTIONS: db_max_connections
+    DC_POOL_RECYCLE: dc_pool_recycle
+    RABBITMQ_USER: rabbitmq_user
+    RABBITMQ_PASS: rabbitmq_pass
+    RABBITMQ_HOST: rabbitmq_host
+    RABBITMQ_PORT: rabbitmq_port
+    ORDER_CREATED_QUEUE: order_created_queue
+    ORDER_CANCELLED_QUEUE: order_cancelled_queue
+    ORDER_STATE_CHANGED_QUEUE: order_state_changed_queue
+
+service:
+  ports:
+    - name: api
+      port: 9000
+      targetPort: 8000
+
+postgres:
+  namespace: ms-order
+  env:
+    POSTGRES_USER: msorder-db-user
+    POSTGRES_PASSWORD: msorder-db-pass
+    POSTGRES_DB: order
+  port: 5432
+  storageRequests: 100Mi

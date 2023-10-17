@@ -1,0 +1,16 @@
+rabbitmq:
+  common:
+    names:
+      namespace: rmq
+  auth:
+    username: rmuser
+    password: rmpass
+    securePassword: false
+  service:
+    type: NodePort
+    portEnabled: true
+  environment:
+    RABBITMQ_USERNAME: rmuser
+    RABBITMQ_PASSWORD: rmpass
+  persistence:
+    size: 1Gi

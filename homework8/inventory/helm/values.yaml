@@ -1,0 +1,94 @@
+namespace: ms-inventory
+
+secrets:
+  reload: False
+  api_port: 8000
+  consumer_port: 8001
+  dbuser: msinventory-db-user
+  dbpass: msinventory-db-pass
+  dbhost: postgres-service
+  dbport: 5432
+  dbname: inventory
+  db_max_connections: 10
+  dc_pool_recycle: 60
+  rabbitmq_user: rmuser
+  rabbitmq_pass: rmpass
+  rabbitmq_host: rabbit-rabbitmq.rmq.svc.cluster.local
+  rabbitmq_port: 5672
+  order_paid_queue: order.paid
+  order_products_reserved_queue: order.products_reserved
+  order_products_backward_queue: order.products_backward
+  order_refund_queue: order.refund
+  
+
+api:
+  replicas: 1
+  image: 
+    repository: nikfedoseev/microservice-architecture-homeworks
+    tag: homework8-ms-inventory-api
+  imagePullPolicy: Always
+  port: 8000
+  containerEnv:
+    RELOAD: reload
+    API_PORT: api_port
+    DB_USER: dbuser
+    DB_PASS: dbpass
+    DB_HOST: dbhost
+    DB_PORT: dbport
+    DB_NAME: dbname
+    DB_MAX_CONNECTIONS: db_max_connections
+    DC_POOL_RECYCLE: dc_pool_recycle
+    RABBITMQ_USER: rabbitmq_user
+    RABBITMQ_PASS: rabbitmq_pass
+    RABBITMQ_HOST: rabbitmq_host
+    RABBITMQ_PORT: rabbitmq_port
+    ORDER_PAID_QUEUE: order_paid_queue
+    ORDER_PRODUCTS_RESERVED_QUEUE: order_products_reserved_queue
+    ORDER_PRODUCTS_BACKWARD_QUEUE: order_products_backward_queue
+    ORDER_REFUND_QUEUE: order_refund_queue
+  migrationEnv:
+    DB_USER: dbuser
+    DB_PASS: dbpass
+    DB_HOST: dbhost
+    DB_PORT: dbport
+    DB_NAME: dbname
+
+consumer:
+  replicas: 1
+  image: 
+    repository: nikfedoseev/microservice-architecture-homeworks
+    tag: homework8-ms-inventory-consumer
+  imagePullPolicy: Always
+  port: 8001
+  containerEnv:
+    RELOAD: reload
+    CONSUMER_PORT: consumer_port
+    DB_USER: dbuser
+    DB_PASS: dbpass
+    DB_HOST: dbhost
+    DB_PORT: dbport
+    DB_NAME: dbname
+    DB_MAX_CONNECTIONS: db_max_connections
+    DC_POOL_RECYCLE: dc_pool_recycle
+    RABBITMQ_USER: rabbitmq_user
+    RABBITMQ_PASS: rabbitmq_pass
+    RABBITMQ_HOST: rabbitmq_host
+    RABBITMQ_PORT: rabbitmq_port
+    ORDER_PAID_QUEUE: order_paid_queue
+    ORDER_PRODUCTS_RESERVED_QUEUE: order_products_reserved_queue
+    ORDER_PRODUCTS_BACKWARD_QUEUE: order_products_backward_queue
+    ORDER_REFUND_QUEUE: order_refund_queue
+
+service:
+  ports:
+    - name: api
+      port: 9000
+      targetPort: 8000
+
+postgres:
+  namespace: ms-inventory
+  env:
+    POSTGRES_USER: msinventory-db-user
+    POSTGRES_PASSWORD: msinventory-db-pass
+    POSTGRES_DB: inventory
+  port: 5432

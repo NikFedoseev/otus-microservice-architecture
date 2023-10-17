@@ -1,0 +1,32 @@
+{{- $secretName := printf "%s-secret" .Chart.Name -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ .Chart.Name }}-{{ .Release.Name }}-deployment-consumer"
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.consumer.replicas }}
+  selector:
+    matchLabels:
+      app: "{{ .Chart.Name }}-{{ .Release.Name }}-consumer"
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: "{{ .Chart.Name }}-{{ .Release.Name }}-consumer"
+    spec:
+      containers:
+      - name: "{{ .Chart.Name }}-{{ .Release.Name }}-consumer"
+        image: "{{ .Values.consumer.image.repository }}:{{ .Values.consumer.image.tag }}"
+        imagePullPolicy: {{ .Values.consumer.imagePullPolicy}}
+        ports:
+        - containerPort: {{ .Values.consumer.port}}
+        env:
+          {{- range $key, $val := .Values.consumer.containerEnv }}
+          - name: {{ $key }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ $secretName }}
+                key: {{ $val }}
+          {{- end }}
